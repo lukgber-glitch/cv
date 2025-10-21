@@ -14,11 +14,11 @@
           <h1>Frontend Developer & UI/UX Enthusiast</h1>
           <p class="subheadline">Spezialisiert auf die Entwicklung moderner, responsiver Benutzeroberflächen mit Fokus auf Performance, Usability und Wiederverwendbarkeit.</p>
           <nav>
-            <button :class="{ active: currentView === 'cv' }" @click="currentView = 'cv'">
+            <button :class="{ active: currentView === 'cv' }" @click="goToCV">
               <i class="ri-file-user-line" aria-hidden="true"></i>
               <span>CV</span>
             </button>
-            <button :class="{ active: currentView === 'job' }" @click="currentView = 'job'">
+            <button :class="{ active: currentView === 'job' }" @click="goToJob">
               <i class="ri-briefcase-2-line" aria-hidden="true"></i>
               <span>Job Application</span>
             </button>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
+import { ref, onMounted, onBeforeUnmount, defineAsyncComponent, nextTick } from 'vue'
 
 // Lazy-load the top-level views to enable code splitting
 const CVView = defineAsyncComponent(() => import('./views/CVView.vue'))
@@ -77,6 +77,38 @@ function scrollToTop() {
   } else {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+}
+
+async function scrollToSelector(selector) {
+  // wait for DOM update first
+  await nextTick()
+  return new Promise((resolve) => {
+    // Use rAF to ensure layout is settled
+    requestAnimationFrame(() => {
+      const el = document.querySelector(selector)
+      if (el) {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' })
+      }
+      resolve(!!el)
+    })
+  })
+}
+
+async function goToCV() {
+  if (currentView.value !== 'cv') {
+    currentView.value = 'cv'
+  }
+  // target section in CV view
+  await scrollToSelector('.intro-section')
+}
+
+async function goToJob() {
+  if (currentView.value !== 'job') {
+    currentView.value = 'job'
+  }
+  // target the Job Description card in the Job Application view
+  await scrollToSelector('.job-description.card')
 }
 
 onMounted(() => {
