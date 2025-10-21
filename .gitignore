@@ -1,0 +1,32 @@
+# Node
+node_modules/
+
+# Vite/Vue build output
+**/dist/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Misc caches
+.eslintcache
+*.tsbuildinfo
