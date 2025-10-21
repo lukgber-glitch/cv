@@ -3,8 +3,8 @@
     <!-- Full-width hero with background video -->
     <section class="hero">
       <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" crossorigin="anonymous">
-        <!-- Primary: local source served from /public (place file at vue-cv/public/bewerbung_low.mp4) -->
-        <source src="/bewerbung_low.mp4" type="video/mp4" />
+        <!-- Primary: local source served from public based on BASE_URL -->
+        <source :src="baseUrl + 'bewerbung_low.mp4'" type="video/mp4" />
         <!-- Fallback: keep 720p remote in case local is missing or blocked -->
         <source src="https://cdn.coverr.co/videos/coverr-typing-on-a-laptop-while-sitting-on-a-sofa-1051/720p.mp4" type="video/mp4" />
       </video>
@@ -54,6 +54,8 @@ const CVView = defineAsyncComponent(() => import('./views/CVView.vue'))
 const JobApplicationView = defineAsyncComponent(() => import('./views/JobApplicationView.vue'))
 
 const currentView = ref('cv')
+
+const baseUrl = (import.meta.env?.BASE_URL || './').replace(/\/?$/, '/')
 
 const showScrollTop = ref(false)
 let ticking = false

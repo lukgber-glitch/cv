@@ -78,7 +78,9 @@ async function fetchProjects() {
   try {
     const ctrl = new AbortController()
     const t = setTimeout(() => ctrl.abort(), 10000)
-    const res = await fetch('/projects.json', { signal: ctrl.signal, headers: { 'accept': 'application/json' } })
+    const base = (import.meta.env?.BASE_URL || './')
+    const url = base.endsWith('/') ? base + 'projects.json' : base + '/projects.json'
+    const res = await fetch(url, { signal: ctrl.signal, headers: { 'accept': 'application/json' } })
     clearTimeout(t)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()

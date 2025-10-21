@@ -90,7 +90,7 @@
                   </button>
                 </div>
                 <div class="pdf-body">
-                  <iframe src="/AZ%20Lukas%20Gruber.pdf" title="Referenzschreiben PDF" loading="lazy"></iframe>
+                  <iframe :src="baseUrl + 'AZ%20Lukas%20Gruber.pdf'" title="Referenzschreiben PDF" loading="lazy"></iframe>
                 </div>
               </div>
             </div>
@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 
 const form = ref({
   name: '',
@@ -174,6 +174,8 @@ function onKeydown(e) {
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
 })
+
+const baseUrl = (import.meta.env?.BASE_URL || './').replace(/\/?$/, '/')
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
