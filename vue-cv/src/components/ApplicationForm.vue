@@ -5,7 +5,7 @@
       <div class="application-form">
         <div class="inset">
           <h2 id="application-form-heading">Ihre Antwort</h2>
-          <form action="https://formsubmit.co/luk.gber@gmail.com" method="POST" novalidate>
+          <form action="https://formsubmit.co/luk.gber@gmail.com" method="POST" novalidate @submit.prevent="handleSubmit">
             <!-- FormSubmit.co configuration -->
             <input type="hidden" name="_subject" value="Neue Rückmeldung über das Bewerbungsformular" />
             <input type="hidden" name="_template" value="table" />
@@ -15,14 +15,48 @@
 
             <div class="fields">
               <div class="field field-name">
-                <input v-model="form.name" id="name" name="name" required placeholder="Zukünftiger Arbeitgeber" />
+                <input
+                  v-model="form.name"
+                  id="name"
+                  name="name"
+                  required
+                  placeholder="Zukünftiger Arbeitgeber"
+                  @blur="handleBlur('name')"
+                  :aria-invalid="touched.name && !!errors.name"
+                  :aria-describedby="touched.name && errors.name ? 'error-name' : undefined"
+                  :class="{ invalid: touched.name && errors.name }"
+                />
+                <p v-if="touched.name && errors.name" id="error-name" class="error-text" role="alert">{{ errors.name }}</p>
               </div>
               <div class="field field-email">
-                <input v-model="form.email" id="email" name="email" type="email" required placeholder="beste@firma.tld" />
+                <input
+                  v-model="form.email"
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="beste@firma.tld"
+                  @blur="handleBlur('email')"
+                  :aria-invalid="touched.email && !!errors.email"
+                  :aria-describedby="touched.email && errors.email ? 'error-email' : undefined"
+                  :class="{ invalid: touched.email && errors.email }"
+                />
+                <p v-if="touched.email && errors.email" id="error-email" class="error-text" role="alert">{{ errors.email }}</p>
               </div>
               <div class="field field-message">
                 <label for="message">Nachricht an zukünftigen Arbeitnehmer</label>
-                <textarea v-model="form.message" id="message" name="message" required placeholder="Ihre fantastische Zusage …"></textarea>
+                <textarea
+                  v-model="form.message"
+                  id="message"
+                  name="message"
+                  required
+                  placeholder="Ihre fantastische Zusage …"
+                  @blur="handleBlur('message')"
+                  :aria-invalid="touched.message && !!errors.message"
+                  :aria-describedby="touched.message && errors.message ? 'error-message' : undefined"
+                  :class="{ invalid: touched.message && errors.message }"
+                ></textarea>
+                <p v-if="touched.message && errors.message" id="error-message" class="error-text" role="alert">{{ errors.message }}</p>
               </div>
               <!-- Quote/Reference section becomes a full clickable link to the PDF -->
               <button
@@ -146,6 +180,71 @@ onBeforeUnmount(() => {
   document.documentElement.style.overflow = ''
 })
 
+// --- Form validation ---
+const touched = ref({ name: false, email: false, message: false })
+
+function handleBlur(field) {
+  touched.value[field] = true
+}
+
+function validateName(value) {
+  if (!value || !value.trim()) return 'Bitte geben Sie den Namen Ihres Unternehmens an.'
+  if (value.trim().length < 2) return 'Der Name muss mindestens 2 Zeichen enthalten.'
+  return ''
+}
+
+function validateEmail(value) {
+  if (!value || !value.trim()) return 'Bitte geben Sie eine E‑Mail-Adresse an.'
+  // Basic, widely used email regex for client-side checks
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+  if (!re.test(value.trim())) return 'Bitte geben Sie eine gültige E‑Mail-Adresse an.'
+  return ''
+}
+
+function validateMessage(value) {
+  if (!value || !value.trim()) return 'Bitte geben Sie eine Nachricht ein.'
+  if (value.trim().length < 10) return 'Die Nachricht sollte mindestens 10 Zeichen lang sein.'
+  return ''
+}
+
+const errors = computed(() => ({
+  name: validateName(form.value.name),
+  email: validateEmail(form.value.email),
+  message: validateMessage(form.value.message),
+}))
+
+const isValid = computed(() => !errors.value.name && !errors.value.email && !errors.value.message)
+
+function focusFirstInvalid() {
+  if (errors.value.name) {
+    document.getElementById('name')?.focus()
+    return
+  }
+  if (errors.value.email) {
+    document.getElementById('email')?.focus()
+    return
+  }
+  if (errors.value.message) {
+    document.getElementById('message')?.focus()
+  }
+}
+
+function handleSubmit(e) {
+  // Mark all as touched so errors become visible if invalid
+  touched.value.name = true
+  touched.value.email = true
+  touched.value.message = true
+
+  if (!isValid.value) {
+    focusFirstInvalid()
+    return
+  }
+
+  // Submit to FormSubmit.co when valid
+  // Use the native submit to respect action/method and hidden inputs
+  e.target.submit()
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -205,6 +304,22 @@ input, textarea {
 textarea {
   min-height: 160px;
   resize: vertical;
+}
+
+/* Validation styles */
+.input, input, textarea {
+  border-color: var(--border);
+}
+
+.invalid {
+  border-color: #dc3545 !important; /* red border for invalid fields */
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.error-text {
+  margin-top: 0.35rem;
+  color: #dc3545;
+  font-size: 0.875rem;
 }
 
 .actions {
