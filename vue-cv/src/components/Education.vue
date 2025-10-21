@@ -5,7 +5,7 @@
       <div v-for="edu in education" :key="edu.school + edu.period" class="item">
         <div class="period" aria-hidden="true">{{ edu.period }}</div>
         <div class="content">
-          <h3 class="title">{{ edu.school }}</h3>
+          <h4 class="title">{{ edu.school }}</h4>
           <p v-if="edu.details" class="meta">
             <i class="ri-graduation-cap-line" aria-hidden="true"></i>
             <span>{{ edu.details }}</span>

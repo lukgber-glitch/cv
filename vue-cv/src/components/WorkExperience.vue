@@ -5,7 +5,7 @@
       <div v-for="job in jobs" :key="job.company + job.period" class="item">
         <div class="period" aria-hidden="true">{{ job.period }}</div>
         <div class="content">
-          <h3 class="title">{{ job.position }} <span class="sep">–</span> {{ job.company }}</h3>
+          <h4 class="title">{{ job.position }} <span class="sep">–</span> {{ job.company }}</h4>
           <p class="meta">
             <i class="ri-briefcase-line" aria-hidden="true"></i>
             <span>{{ job.type }}</span>

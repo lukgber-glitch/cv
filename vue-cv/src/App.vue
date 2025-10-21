@@ -79,20 +79,40 @@ function scrollToTop() {
   }
 }
 
-async function scrollToSelector(selector) {
-  // wait for DOM update first
+async function waitForElement(selector, { timeout = 3000, interval = 50 } = {}) {
+  const start = performance.now()
+  // Check immediately after a tick and frame
   await nextTick()
+  await new Promise((r) => requestAnimationFrame(r))
+  let el = document.querySelector(selector)
+  if (el) return el
+  // Poll until found or timeout expires (handles first load of async view components)
   return new Promise((resolve) => {
-    // Use rAF to ensure layout is settled
-    requestAnimationFrame(() => {
-      const el = document.querySelector(selector)
+    const timer = setInterval(() => {
+      el = document.querySelector(selector)
       if (el) {
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' })
+        clearInterval(timer)
+        clearTimeout(to)
+        resolve(el)
       }
-      resolve(!!el)
-    })
+      if (performance.now() - start >= timeout) {
+        clearInterval(timer)
+        resolve(null)
+      }
+    }, interval)
+    const to = setTimeout(() => {
+      clearInterval(timer)
+      resolve(document.querySelector(selector))
+    }, timeout)
   })
+}
+
+async function scrollToSelector(selector) {
+  const el = await waitForElement(selector)
+  if (!el) return false
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' })
+  return true
 }
 
 async function goToCV() {

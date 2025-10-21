@@ -328,16 +328,6 @@ textarea {
   margin-top: var(--space-6);
 }
 
-@media (min-width: 768px) {
-  .fields {
-    grid-template-columns: 1fr 1fr; /* two columns for compact layout */
-  }
-  /* constrain field widths on tablet/desktop */
-  .field,
-  .field-message {
-    max-width: 520px;
-  }
-}
 
 @media (min-width: 992px) {
   .fields {
@@ -452,5 +442,40 @@ textarea {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Extra small devices tweaks to prevent overflow */
+@media (max-width: 400px) {
+  .application-form .inset {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  .fields { overflow-x: hidden; }
+  .field, .field-message { min-width: 0; }
+  input, textarea {
+    padding: var(--space-2) var(--space-3);
+    min-width: 0;
+  }
+  .quote i { font-size: 2rem; }
+}
+
+/* Mobile override: use inline flow for the fields wrapper as requested; keep children full-width blocks */
+@media (max-width: 540px) {
+  .fields {
+    display: inline; /* requested change: inline instead of grid/flex */
+  }
+  .field,
+  .field-message,
+  .quote {
+    display: block; /* ensure each field stacks and occupies full width */
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-bottom: var(--space-4); /* replace former grid/flex gap */
+  }
+  .quote { margin-top: 0; }
+  .fields > :last-child { margin-bottom: 0; }
+  .quote i { font-size: 1.75rem; }
+  .quote .text { word-break: break-word; }
 }
 </style>
