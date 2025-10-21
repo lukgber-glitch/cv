@@ -6,6 +6,8 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Use relative base so the built site works from the repo root (e.g., GitHub Pages)
+  base: './',
   plugins: [
     vue(),
     vueDevTools(),
