@@ -18,7 +18,8 @@
 
 <script setup>
 const jobs = [
-  { period: '08/2022 – 06/2025', position: 'Grafikdesigner/Webentwickler', company: 'Röbels Früchte', type: 'Freelancer' },
+  { period: '09/2025 – 10/2025', position: 'Grafikdesigner', company: 'VTA', type: 'Vollzeit' },
+  { period: '08/2022 – 01/2025', position: 'Unterstützung verschiedener Unternehmen bei logistischen und operativen Aufgaben', company: '', type: 'Vollzeit' },
   { period: '03/2020 – 04/2022', position: 'Webentwickler', company: 'INCERT eTourismus GmbH & Co KG', type: 'Vollzeit' },
   { period: '11/2017 – 03/2020', position: 'Webentwickler/Grafikdesigner', company: 'Atikon EDV & Marketing GmbH', type: 'Vollzeit' },
   { period: '01/2014 – 09/2017', position: 'Webentwickler/Grafikdesigner', company: 'Dni Labs', type: 'Lehre' },
@@ -36,7 +37,7 @@ const jobs = [
 
 .item {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 110px 1fr;
   gap: 1rem;
   padding: 0.75rem 0; /* a bit more breathing room for a clearer timeline */
   border-bottom: 1px solid var(--border);

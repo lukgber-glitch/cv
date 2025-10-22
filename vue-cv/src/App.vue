@@ -111,7 +111,17 @@ async function scrollToSelector(selector) {
   const el = await waitForElement(selector)
   if (!el) return false
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' })
+  const rect = el.getBoundingClientRect()
+  const visualOffset = (window.visualViewport && window.visualViewport.offsetTop) ? window.visualViewport.offsetTop : 0
+  const top = Math.max(0, rect.top + (window.scrollY || window.pageYOffset || 0) + visualOffset)
+  if (prefersReduced) {
+    window.scrollTo(0, top)
+  } else {
+    window.scrollTo({ top, behavior: 'smooth' })
+    // Mobile browsers (e.g., iOS Safari) may adjust viewport chrome after the first scroll.
+    // Nudge again shortly to ensure the target is aligned at the top.
+    setTimeout(() => window.scrollTo({ top, behavior: 'smooth' }), 350)
+  }
   return true
 }
 

@@ -102,7 +102,7 @@ a:hover {
 // Controls
 button,
 .button {
-  appearance: none;
+  /* Removed appearance: none; to avoid vendor-prefixed -moz-appearance in built CSS (IDE warning) */
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);

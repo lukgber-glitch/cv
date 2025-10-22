@@ -35,7 +35,7 @@ const education = [
 
 .item {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 110px 1fr;
   gap: 1rem;
   padding: 0.75rem 0; /* match spacing with WorkExperience timeline */
   border-bottom: 1px solid var(--border);
