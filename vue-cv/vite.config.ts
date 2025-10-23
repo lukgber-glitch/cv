@@ -31,4 +31,9 @@ export default defineConfig({
     strictPort: true,
     open: false,
   },
+  // Output build directly to repo root so GitHub Pages serves latest build
+  build: {
+    outDir: '../',
+    emptyOutDir: false,
+  },
 })
