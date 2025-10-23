@@ -31,10 +31,17 @@
             </button>
           </div>
           <div class="img-body">
-            <!-- Show three images in a scrollable column; try fallback path if first fails -->
-            <img :src="srcs.mediendesign" alt="Zeugnis Mediendesign" loading="lazy" @error="onImgError('mediendesign')" />
-            <img :src="srcs.medientechnik" alt="Zeugnis Medientechnik" loading="lazy" @error="onImgError('medientechnik')" />
-            <img :src="srcs.ittechnik" alt="Zeugnis IT-Technik" loading="lazy" @error="onImgError('ittechnik')" />
+            <!-- Carousel: show single image fully fitted; switch via arrows -->
+            <button type="button" class="nav prev" @click.stop="prevImage" aria-label="Vorheriges Bild">
+              <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+            </button>
+
+            <img :src="currentSrc" :alt="currentAlt" loading="lazy" @error="() => onImgError(currentKey)" />
+
+            <button type="button" class="nav next" @click.stop="nextImage" aria-label="Nächstes Bild">
+              <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+            </button>
+
             <p v-if="allFailed" class="img-notice">Bilder konnten nicht geladen werden. Bitte Seite neu laden oder später erneut versuchen.</p>
           </div>
         </div>
@@ -62,6 +69,27 @@ const srcs = reactive({
 })
 const failures = reactive({ mediendesign: 0, medientechnik: 0, ittechnik: 0 })
 const allFailed = computed(() => failures.mediendesign > 1 && failures.medientechnik > 1 && failures.ittechnik > 1)
+
+// Carousel state
+const keys = ['mediendesign', 'medientechnik', 'ittechnik']
+const currentIndex = ref(0)
+const currentKey = computed(() => keys[currentIndex.value])
+const currentSrc = computed(() => srcs[currentKey.value])
+const currentAlt = computed(() => {
+  const map = {
+    mediendesign: 'Zeugnis Mediendesign',
+    medientechnik: 'Zeugnis Medientechnik',
+    ittechnik: 'Zeugnis IT-Technik',
+  }
+  return map[currentKey.value]
+})
+
+function nextImage() {
+  currentIndex.value = (currentIndex.value + 1) % keys.length
+}
+function prevImage() {
+  currentIndex.value = (currentIndex.value - 1 + keys.length) % keys.length
+}
 
 function onImgError(key) {
   failures[key]++
@@ -143,6 +171,17 @@ function onKeydown(e) {
     }
     e.preventDefault()
     focusables[idx].focus()
+    return
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault()
+    nextImage()
+    return
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault()
+    prevImage()
+    return
   }
 }
 
@@ -214,9 +253,14 @@ onBeforeUnmount(() => {
 .img-header .close { background: transparent; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; display: inline-flex; align-items: center; }
 .img-header .close i { font-size: 1.25rem; color: var(--text); }
 
-.img-body { flex: 1; overflow: auto; padding: 1rem; }
-.img-body img { display: block; max-width: 100%; height: auto; margin: 0 auto 1rem; border: 1px solid var(--border); }
-.img-body img:last-child { margin-bottom: 0; }
+.img-body { flex: 1; position: relative; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; }
+.img-body img { display: block; max-width: 100%; max-height: 100%; width: auto; height: 100%; margin: 0; border: 1px solid var(--border); background: #fff; }
+
+/* Nav arrows */
+.img-body .nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: 999px; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.img-body .nav i { font-size: 1.25rem; color: var(--text); }
+.img-body .nav.prev { left: 0.75rem; }
+.img-body .nav.next { right: 0.75rem; }
 
 .img-notice { color: var(--text-muted); text-align: center; margin: 0.5rem 0 0; }
 
