@@ -124,7 +124,6 @@ function onImgError(key) {
     const url = baseUrl + 'Zeugnis-Mediendesign-002.jpg'
     srcs[key] = url
     console.debug('[Interests] image fallback #4 (case variant) →', key, url)
-    return
   }
 }
 
@@ -181,7 +180,6 @@ function onKeydown(e) {
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
     prevImage()
-    return
   }
 }
 
@@ -254,7 +252,7 @@ onBeforeUnmount(() => {
 .img-header .close i { font-size: 1.25rem; color: var(--text); }
 
 .img-body { flex: 1; position: relative; overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; }
-.img-body img { display: block; max-width: 100%; max-height: 100%; width: auto; height: 100%; margin: 0; border: 1px solid var(--border); background: #fff; }
+.img-body img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; margin: 0; border: 1px solid var(--border); background: #fff; }
 
 /* Nav arrows */
 .img-body .nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: 1px solid var(--border); border-radius: 999px; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }

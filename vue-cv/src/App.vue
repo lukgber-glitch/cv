@@ -110,17 +110,25 @@ async function waitForElement(selector, { timeout = 3000, interval = 50 } = {}) 
 async function scrollToSelector(selector) {
   const el = await waitForElement(selector)
   if (!el) return false
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const rect = el.getBoundingClientRect()
-  const visualOffset = (window.visualViewport && window.visualViewport.offsetTop) ? window.visualViewport.offsetTop : 0
-  const top = Math.max(0, rect.top + (window.scrollY || window.pageYOffset || 0) + visualOffset)
-  if (prefersReduced) {
-    window.scrollTo(0, top)
-  } else {
-    window.scrollTo({ top, behavior: 'smooth' })
-    // Mobile browsers (e.g., iOS Safari) may adjust viewport chrome after the first scroll.
-    // Nudge again shortly to ensure the target is aligned at the top.
-    setTimeout(() => window.scrollTo({ top, behavior: 'smooth' }), 350)
+  // Always perform smooth scroll for header buttons regardless of prefers-reduced-motion,
+  // to match requested behavior. We still provide graceful fallbacks if unsupported.
+  try {
+    // Prefer element-based smooth scroll for better block alignment
+    el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+    // Nudge again on mobile after viewport UI adjustments
+    setTimeout(() => {
+      try { el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' }) } catch {}
+    }, 350)
+  } catch {
+    // Fallback to window-based smooth scroll
+    const rect = el.getBoundingClientRect()
+    const visualOffset = (window.visualViewport && window.visualViewport.offsetTop) ? window.visualViewport.offsetTop : 0
+    const top = Math.max(0, rect.top + (window.scrollY || window.pageYOffset || 0) + visualOffset)
+    try {
+      window.scrollTo({ top, behavior: 'smooth' })
+    } catch {
+      window.scrollTo(0, top)
+    }
   }
   return true
 }
