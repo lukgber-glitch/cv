@@ -53,7 +53,20 @@ import { ref, onMounted, onBeforeUnmount, defineAsyncComponent, nextTick } from 
 const CVView = defineAsyncComponent(() => import('./views/CVView.vue'))
 const JobApplicationView = defineAsyncComponent(() => import('./views/JobApplicationView.vue'))
 
-const currentView = ref('cv')
+function detectInitialView() {
+  try {
+    const url = new URL(window.location.href)
+    const sent = url.searchParams.get('sent') === '1'
+    const hash = url.hash || ''
+    // If returning from form submission or anchor targets the application form, show Job view
+    if (sent || hash.includes('application-form-heading')) {
+      return 'job'
+    }
+  } catch {}
+  return 'cv'
+}
+
+const currentView = ref(detectInitialView())
 
 const baseUrl = (import.meta.env?.BASE_URL || './').replace(/\/?$/, '/')
 
@@ -149,9 +162,18 @@ async function goToJob() {
   await scrollToSelector('.job-description.card')
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()
+  // If we landed here after successful form submission, ensure we reveal the Job view anchor
+  try {
+    const url = new URL(window.location.href)
+    const sent = url.searchParams.get('sent') === '1'
+    const hash = url.hash || ''
+    if ((sent || hash.includes('application-form-heading')) && currentView.value === 'job') {
+      await scrollToSelector('#application-form-heading')
+    }
+  } catch {}
 })
 
 onBeforeUnmount(() => {
