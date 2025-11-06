@@ -5,7 +5,12 @@
       <div class="application-form">
         <div class="inset">
           <h2 id="application-form-heading">Ihre Antwort</h2>
-          <form action="https://formsubmit.co/luk.gber@gmail.com" method="POST" novalidate @submit.prevent="handleSubmit">
+          <p v-if="wasSent" class="notice success" role="status">
+            Vielen Dank! Ihre Nachricht wurde gesendet. Sie können mir auch direkt an <a href="mailto:luk.gber@gmail.com">luk.gber@gmail.com</a> schreiben.
+          </p>
+          <form action="https://formsubmit.co/luk.gber@gmail.com" method="POST" target="_self" novalidate @submit.prevent="handleSubmit">
+            <!-- Redirect back to this site after successful submission -->
+            <input type="hidden" name="_next" :value="redirectUrl" />
             <!-- FormSubmit.co configuration -->
             <input type="hidden" name="_subject" value="Neue Rückmeldung über das Bewerbungsformular" />
             <input type="hidden" name="_template" value="table" />
@@ -32,7 +37,7 @@
                 <input
                   v-model="form.email"
                   id="email"
-                  name="email"
+                  name="_replyto"
                   type="email"
                   required
                   placeholder="beste@firma.tld"
@@ -66,10 +71,10 @@
                 aria-label="Referenzschreiben: Das sagen andere Arbeitgeber"
               >
                 <i class="ri-double-quotes-l" aria-hidden="true"></i>
-                <div class="text">
-                  <h3 id="quote-heading">ÜBERDURCHSCHNITTLICH</h3>
-                  <p>Das sagen andere Arbeitgeber</p>
-                </div>
+                <span class="text" role="group" aria-labelledby="quote-heading">
+                  <span id="quote-heading" class="quote-title" role="heading" aria-level="3">ÜBERDURCHSCHNITTLICH</span>
+                  <span class="quote-sub">Das sagen andere Arbeitgeber</span>
+                </span>
                 <i class="ri-double-quotes-r" aria-hidden="true"></i>
               </button>
             </div>
@@ -103,6 +108,34 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
+
+// Detect if we are returning from a successful FormSubmit redirect
+const wasSent = ref(false)
+// Build an absolute redirect URL back to this page after submit
+const redirectUrl = computed(() => {
+  try {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sent', '1')
+    url.hash = 'application-form-heading'
+    return url.toString()
+  } catch {
+    // Fallback to relative URL; FormSubmit prefers absolute, but return something reasonable
+    return '#application-form-heading'
+  }
+})
+
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('sent') === '1') {
+    wasSent.value = true
+    // Clean the URL without reloading (remove sent=1)
+    if (window.history && window.history.replaceState) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('sent')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }
+})
 
 const form = ref({
   name: '',
@@ -373,14 +406,16 @@ textarea {
   display: flex;
   flex-direction: column;
 }
-.quote h3 {
+.quote .quote-title {
   margin: 0 0 var(--space-3);
   color: #1a3b70;
   font-weight: 700;
+  display: block;
 }
-.quote p {
+.quote .quote-sub {
   margin: 0;
   color: var(--text-muted);
+  display: block;
 }
 
 /* Modal overlay and animation similar to reference modal-flex-container */
