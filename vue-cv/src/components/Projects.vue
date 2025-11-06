@@ -1,9 +1,6 @@
 <template>
   <div class="card" ref="rootEl">
     <h2>Projekte</h2>
-    <p class="helper-text" aria-live="polite">
-      Vorschaubilder werden automatisch von externen Diensten erzeugt (primär WordPress mShots, Fallback thum.io). Manche Seiten blockieren solche Screenshot-Dienste oder liefern Fehler (z. B. 404/403) – dann wird ein neutraler Platzhalter angezeigt.
-    </p>
     <p v-if="loadError" class="notice">
       Projekte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.
     </p>
