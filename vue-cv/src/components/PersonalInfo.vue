@@ -30,7 +30,7 @@
       <li>
         <i class="ri-mail-line" aria-hidden="true"></i>
         <span class="label">Email:</span>
-        <a class="value" href="mailto:gruber.luk@gmx.at">gruber.luk@gmx.at</a>
+        <a class="value" href="mailto:luk.gber@gmail.com">luk.gber@gmail.com</a>
       </li>
     </ul>
   </div>

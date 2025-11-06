@@ -1,6 +1,9 @@
 <template>
   <div class="card" ref="rootEl">
     <h2>Projekte</h2>
+    <p class="helper-text" aria-live="polite">
+      Vorschaubilder werden automatisch von externen Diensten erzeugt (primär WordPress mShots, Fallback thum.io). Manche Seiten blockieren solche Screenshot-Dienste oder liefern Fehler (z. B. 404/403) – dann wird ein neutraler Platzhalter angezeigt.
+    </p>
     <p v-if="loadError" class="notice">
       Projekte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.
     </p>
@@ -82,11 +85,13 @@ async function fetchProjects() {
     const url = base.endsWith('/') ? base + 'projects.json' : base + '/projects.json'
     const res = await fetch(url, { signal: ctrl.signal, headers: { 'accept': 'application/json' } })
     clearTimeout(t)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    if (!res.ok) {
+      loadError.value = true
+      return
+    }
     const data = await res.json()
     // basic validation and sanitize
-    const valid = Array.isArray(data) ? data.filter(p => p && p.link && p.name) : []
-    projects.value = valid
+    projects.value = Array.isArray(data) ? data.filter(p => p && p.link && p.name) : []
   } catch (e) {
     console.error('Failed to load projects.json', e)
     loadError.value = true
@@ -118,12 +123,29 @@ onBeforeUnmount(() => { io && io.disconnect() })
 // { loaded?: boolean, failed?: boolean, src?: string, triedSecondary?: boolean }
 const status = reactive({})
 
-function primaryUrl(url) {
-  return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1000`
+// Primary screenshot provider: WordPress mShots
+// Rationale: free, no API key, reliable CDN, handles many public sites.
+// Caveat: Some sites block headless/screenshot bots or require cookies/auth -> can return 403/404.
+// Add a small cache-busting token so stale CDN 404s get refreshed periodically.
+function cacheBustToken() {
+  const d = new Date()
+  const yyyy = d.getUTCFullYear()
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const hh = String(d.getUTCHours()).padStart(2, '0')
+  return `${yyyy}${mm}${dd}${hh}` // changes hourly
 }
+
+function primaryUrl(url) {
+  const cb = cacheBustToken()
+  return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1000&cb=${cb}`
+}
+// Secondary fallback provider when mShots fails (onerror of <img>):
+// Uses thum.io which often works when mShots is blocked, but may be rate‑limited.
 function secondaryUrl(url) {
   // public screenshot fallback provider
-  return `https://image.thum.io/get/width/1000/${encodeURIComponent(url)}`
+  const cb = cacheBustToken()
+  return `https://image.thum.io/get/width/1000/${encodeURIComponent(url)}?cb=${cb}`
 }
 
 function currentSrc(link) {
