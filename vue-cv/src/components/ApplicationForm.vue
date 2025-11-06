@@ -5,7 +5,7 @@
       <div class="application-form">
         <div class="inset">
           <h2 id="application-form-heading">Ihre Antwort</h2>
-          <p v-if="wasSent" class="notice success" role="status">
+          <p v-if="wasSent" class="notice success" role="status" ref="successNoticeEl" tabindex="-1">
             Vielen Dank! Ihre Nachricht wurde gesendet. Sie können mir auch direkt an <a href="mailto:luk.gber@gmail.com">luk.gber@gmail.com</a> schreiben.
           </p>
           <form action="https://formsubmit.co/luk.gber@gmail.com" method="POST" target="_self" novalidate @submit.prevent="handleSubmit">
@@ -111,6 +111,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 
 // Detect if we are returning from a successful FormSubmit redirect
 const wasSent = ref(false)
+const successNoticeEl = ref(null)
 // Build an absolute redirect URL back to this page after submit
 const redirectUrl = computed(() => {
   try {
@@ -134,6 +135,20 @@ onMounted(() => {
       url.searchParams.delete('sent')
       window.history.replaceState({}, '', url.toString())
     }
+    // After rendering the success notice, scroll it into view and focus for accessibility
+    nextTick(() => {
+      const el = successNoticeEl.value || document.querySelector('.notice.success')
+      if (el && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // optional: adjust for any fixed headers by nudging a bit
+        try {
+          const top = el.getBoundingClientRect().top + window.scrollY - 12
+          window.scrollTo({ top, behavior: 'smooth' })
+        } catch {}
+        // focus for screen readers
+        if (typeof el.focus === 'function') el.focus({ preventScroll: true })
+      }
+    })
   }
 })
 
